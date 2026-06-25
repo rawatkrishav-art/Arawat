@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VeloMart — Buy & Sell Cars & Bikes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0D0E11; --surface: #16181E; --surface2: #1E2028;
+      --border: #2A2C35; --accent: #F5A623; --accent2: #E8440E;
+      --text: #ECEDF1; --muted: #8A8D99; --green: #2ECC71; --red: #E8440E; --radius: 6px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 68px;
+      background: rgba(13,14,17,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 1.6rem; letter-spacing: 1px; color: var(--text); cursor: pointer; text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: .85rem; font-weight: 500; letter-spacing: .5px; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-cta { background: var(--accent) !important; color: #000 !important; padding: 8px 20px; border-radius: var(--radius); font-weight: 600 !important; font-size: .82rem !important; }
+
+    /* HERO */
+    .hero {
+      position: relative; overflow: hidden; min-height: 90vh;
+      display: flex; flex-direction: column; justify-content: center; padding: 80px 5%;
+      padding-top: calc(68px + 60px);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 75% 50%, rgba(245,166,35,.10) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(232,68,14,.08) 0%, transparent 60%), var(--bg);
+    }
+    .hero-eyebrow { font-family: 'Space Mono', monospace; font-size: .72rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; position: relative; }
+    .hero h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(3.5rem, 9vw, 8rem); line-height: .95; letter-spacing: -1px; text-transform: uppercase; position: relative; max-width: 780px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-sub { margin-top: 28px; max-width: 460px; font-size: 1rem; line-height: 1.65; color: var(--muted); position: relative; }
+    .hero-actions { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; position: relative; }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 28px; border-radius: var(--radius); font-size: .9rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all .2s; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #f7b84a; }
+    .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--text); }
+
+    /* STATS */
+    .stats-strip { display: flex; gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+    .stat { flex: 1; padding: 28px 5%; border-right: 1px solid var(--border); text-align: center; }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 2.4rem; color: var(--accent); }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: 4px; }
+
+    /* SEARCH */
+    .search-section { padding: 64px 5%; }
+    .section-label { font-family: 'Space Mono', monospace; font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; text-transform: uppercase; }
+    .search-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .search-bar select, .search-bar input { flex: 1; min-width: 160px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: .88rem; outline: none; appearance: none; }
+    .search-bar select:focus, .search-bar input:focus { border-color: var(--accent); }
+    .search-bar button { padding: 12px 28px; background: var(--accent); color: #000; border: none; border-radius: var(--radius); font-weight: 700; font-size: .9rem; cursor: pointer; }
+
+    /* LISTINGS */
+    .listings-section { padding: 64px 5%; }
+    .section-header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 32px; }
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .tab { padding: 6px 16px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 100px; font-size: .8rem; font-weight: 500; cursor: pointer; transition: all .2s; }
+    .tab.active, .tab:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+    .view-all { font-size: .82rem; color: var(--accent); text-decoration: none; }
+    .view-all:hover { text-decoration: underline; }
+
+    /* GRID */
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+
+    /* CARD */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: transform .25s, box-shadow .25s; cursor: pointer; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+    .card-img { width: 100%; height: 190px; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: var(--surface2); position: relative; overflow: hidden; }
+    .card-badge { position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 4px; font-size: .7rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    .badge-new { background: var(--green); color: #000; }
+    .badge-used { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .badge-hot { background: var(--accent2); color: #fff; }
+    .card-body { padding: 16px; }
+    .card-type { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; line-height: 1.2; margin-bottom: 4px; }
+    .card-year { font-size: .78rem; color: var(--muted); margin-bottom: 12px; }
+    .card-specs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .spec { font-size: .73rem; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 4px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; }
+    .card-price { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .card-price span { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .card-action { width: 34px; height: 34px; background: var(--accent); color: #000; border: none; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* TESTIMONIALS */
+    .testi-section { padding: 80px 5%; }
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 40px; }
+    .testi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .testi-stars { color: var(--accent); font-size: 1rem; margin-bottom: 14px; }
+    .testi-text { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .testi-name { font-size: .85rem; font-weight: 600; }
+    .testi-meta { font-size: .75rem; color: var(--muted); }
+
+    /* SELL CTA */
+    .sell-cta { padding: 80px 5%; display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(245,166,35,.12) 0%, transparent 50%), var(--bg); }
+    .sell-cta-text h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(2rem, 5vw, 3.6rem); text-transform: uppercase; line-height: .95; }
+    .sell-cta-text h2 em { font-style: normal; color: var(--accent); }
+    .sell-cta-text p { margin-top: 16px; color: var(--muted); max-width: 400px; line-height: 1.6; }
+
+    /* FOOTER */
+    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 48px 5% 24px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px; margin-bottom: 40px; }
+    .footer-brand p { font-size: .82rem; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+    .footer-col h4 { font-family: 'Barlow Condensed', sans-serif; font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .footer-col a { display: block; font-size: .82rem; color: var(--muted); text-decoration: none; margin-bottom: 8px; transition: color .2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .78rem; color: var(--muted); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .stats-strip { flex-wrap: wrap; }
+      .stat { flex: calc(50% - 1px); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">Velo<span>Mart</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="browse.html">Browse</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="sell.html" class="nav-cta">Sell Your Vehicle</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow">India's Premier Vehicle Marketplace</div>
+  <h1>Drive Your<br/><em>Dream</em><br/>Vehicle</h1>
+  <p class="hero-sub">Buy or sell pre-owned cars and bikes with confidence. Real prices, verified sellers, zero hassle.</p>
+  <div class="hero-actions">
+    <a href="portfolio.html" class="btn btn-primary">🔍 Browse All Vehicles</a>
+    <a href="sell.html" class="btn btn-outline">📤 List Your Vehicle</a>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat"><div class="stat-num">12,400+</div><div class="stat-label">Vehicles Listed</div></div>
+  <div class="stat"><div class="stat-num">8,900+</div><div class="stat-label">Happy Buyers</div></div>
+  <div class="stat"><div class="stat-num">340+</div><div class="stat-label">Verified Sellers</div></div>
+  <div class="stat"><div class="stat-num">24hr</div><div class="stat-label">Avg. Deal Time</div></div>
+</div>
+
+<section class="search-section">
+  <div class="section-label">Find Your Match</div>
+  <h2 class="section-title">Search Vehicles</h2>
+  <div class="search-bar">
+    <select><option>All Types</option><option>Cars</option><option>Bikes</option><option>SUVs</option><option>Scooters</option></select>
+    <select><option>All Brands</option><option>Maruti Suzuki</option><option>Hyundai</option><option>Honda</option><option>Royal Enfield</option><option>Bajaj</option><option>KTM</option><option>Toyota</option><option>Tata</option></select>
+    <select><option>Budget (Any)</option><option>Under ₹1 Lakh</option><option>₹1L – ₹3L</option><option>₹3L – ₹7L</option><option>₹7L – ₹15L</option><option>Above ₹15L</option></select>
+    <select><option>Year (Any)</option><option>2024–2025</option><option>2022–2023</option><option>2020–2021</option><option>2018–2019</option><option>Before 2018</option></select>
+    <button onclick="window.location.href='browse.html'">Search →</button>
+  </div>
+</section>
+
+<section class="listings-section" id="listings">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Fresh Arrivals</div>
+      <h2 class="section-title">Latest Listings</h2>
+      <div class="filter-tabs">
+        <div class="tab active" onclick="filterTab(this,'all')">All</div>
+        <div class="tab" onclick="filterTab(this,'car')">Cars</div>
+        <div class="tab" onclick="filterTab(this,'bike')">Bikes</div>
+        <div class="tab" onclick="filterTab(this,'suv')">SUVs</div>
+        <div class="tab" onclick="filterTab(this,'scooter')">Scooters</div>
+      </div>
+    </div>
+    <a href="portfolio.html" class="view-all">View All →</a>
+  </div>
+  <div class="grid grid-4" id="listingGrid"></div>
+</section>
+
+<section class="sell-cta">
+  <div class="sell-cta-text">
+    <h2>Ready to Sell<br/>Your <em>Ride?</em></h2>
+    <p>List for free, reach thousands of verified buyers across India. No middlemen. No surprises.</p>
+  </div>
+  <a href="sell.html" class="btn btn-primary" style="font-size:1rem;padding:16px 36px;">Post Free Listing →</a>
+</section>
+
+<section class="testi-section">
+  <div class="section-label">Real Experiences</div>
+  <h2 class="section-title">What Our Users Say</h2>
+  <div class="testi-grid">
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">Sold my old Swift within two days of listing. The verification process gave buyers confidence and I got my asking price. Brilliant experience.</p><div class="testi-author"><div class="testi-avatar">👨</div><div><div class="testi-name">Arjun Sharma</div><div class="testi-meta">Sold Maruti Swift · Delhi</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><p class="testi-text">Found a genuine Royal Enfield Meteor at ₹20,000 below market price. The seller was verified and the bike was exactly as listed. 10/10!</p><div class="testi-author"><div class="testi-avatar">👩</div><div><div class="testi-name">Priya Mehta</div><div class="testi-meta">Bought RE Meteor · Mumbai</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★☆</div><p class="testi-text">The search filters made it so easy to narrow down what I wanted. Got a fantastic deal on a 2022 Creta. Transfer documents were hassle-free.</p><div class="testi-author"><div class="testi-avatar">🧑</div><div><div class="testi-name">Ravi Kumar</div><div class="testi-meta">Bought Hyundai Creta · Bangalore</div></div></div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="logo" style="font-size:1.4rem">Velo<span>Mart</span></div><p>India's trusted marketplace for buying and selling pre-owned cars and bikes.</p></div>
+    <div class="footer-col"><h4>Browse</h4><a href="browse.html">Cars for Sale</a><a href="browse.html">Bikes for Sale</a><a href="browse.html">SUVs</a><a href="browse.html">Luxury Vehicles</a></div>
+    <div class="footer-col"><h4>Sell</h4><a href="sell.html">List a Vehicle</a><a href="sell.html">Pricing Guide</a><a href="sell.html">Document Checklist</a><a href="sell.html">Seller FAQ</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="#">About VeloMart</a><a href="#">Contact Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 VeloMart. All rights reserved.</span><span>Made with ❤️ for vehicle enthusiasts across India</span></div>
+</footer>
+
+<script>
+const vehicles = [
+  { id:1, name:'Maruti Swift VXI', type:'car', year:2021, km:'38,000', price:'₹5,40,000', location:'Delhi', fuel:'Petrol', trans:'Manual', owner:'2nd Owner', status:'available', emoji:'🚗', badge:'used' },
+  { id:2, name:'Honda Activa 6G', type:'scooter', year:2023, km:'12,500', price:'₹68,000', location:'Mumbai', fuel:'Petrol', trans:'Auto CVT', owner:'1st Owner', status:'available', emoji:'🛵', badge:'new' },
+  { id:3, name:'Royal Enfield Classic 350', type:'bike', year:2022, km:'21,000', price:'₹1,45,000', location:'Jaipur', fuel:'Petrol', trans:'Manual 5-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'used' },
+  { id:4, name:'Tata Nexon EV Max', type:'suv', year:2023, km:'9,800', price:'₹16,80,000', location:'Bangalore', fuel:'Electric', trans:'Automatic', owner:'1st Owner', status:'reserved', emoji:'🚙', badge:'hot' },
+  { id:5, name:'KTM Duke 390', type:'bike', year:2022, km:'17,200', price:'₹2,10,000', location:'Pune', fuel:'Petrol', trans:'Manual 6-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'used' },
+  { id:6, name:'Hyundai i20 Asta', type:'car', year:2020, km:'54,000', price:'₹7,20,000', location:'Chennai', fuel:'Petrol', trans:'Manual', owner:'2nd Owner', status:'sold', emoji:'🚗', badge:'used' },
+  { id:7, name:'Bajaj Pulsar NS200', type:'bike', year:2023, km:'8,000', price:'₹1,22,000', location:'Amritsar', fuel:'Petrol', trans:'Manual 6-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'new' },
+  { id:8, name:'Toyota Innova Crysta', type:'suv', year:2019, km:'72,000', price:'₹12,50,000', location:'Lucknow', fuel:'Diesel', trans:'Manual', owner:'2nd Owner', status:'available', emoji:'🚐', badge:'used' },
+];
+
+function buildCard(v) {
+  return `
+    <div class="card" data-type="${v.type}">
+      <div class="card-img">
+        <span class="card-badge badge-${v.badge}">${v.badge==='new'?'New':v.badge==='hot'?'🔥 Hot':'Used'}</span>
+        ${v.emoji}
+      </div>
+      <div class="card-body">
+        <div class="card-type">${v.type.toUpperCase()}</div>
+        <div class="card-name">${v.name}</div>
+        <div class="card-year">${v.year} · ${v.km} km · ${v.fuel}</div>
+        <div class="card-specs">
+          <span class="spec">${v.trans}</span>
+          <span class="spec">${v.owner}</span>
+          <span class="spec">📍 ${v.location}</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-price">${v.price} <span>/ neg.</span></div>
+          <button class="card-action" onclick="window.location.href='sell.html'">→</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderListings(filter='all') {
+  const grid = document.getElementById('listingGrid');
+  const filtered = filter==='all' ? vehicles : vehicles.filter(v=>v.type===filter);
+  grid.innerHTML = filtered.map(buildCard).join('');
+}
+
+function filterTab(el, filter) {
+  document.querySelectorAll('.filter-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderListings(filter);
+}
+
+renderListings();
+</script>
+</body>
+</html>

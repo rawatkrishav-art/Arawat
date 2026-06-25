@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VeloMart — Browse Vehicles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0D0E11; --surface: #16181E; --surface2: #1E2028;
+      --border: #2A2C35; --accent: #F5A623; --accent2: #E8440E;
+      --text: #ECEDF1; --muted: #8A8D99; --green: #2ECC71; --red: #E8440E; --radius: 6px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 68px;
+      background: rgba(13,14,17,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 1.6rem; letter-spacing: 1px; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { font-size: .85rem; font-weight: 500; letter-spacing: .5px; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-cta { background: var(--accent) !important; color: #000 !important; padding: 8px 20px; border-radius: var(--radius); font-weight: 600 !important; font-size: .82rem !important; }
+
+    .section-label { font-family: 'Space Mono', monospace; font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; text-transform: uppercase; }
+    .tab { padding: 6px 16px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 100px; font-size: .8rem; font-weight: 500; cursor: pointer; transition: all .2s; }
+    .tab.active, .tab:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+
+    .browse-hero {
+      padding: 120px 5% 48px;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,166,35,.08) 0%, transparent 60%), var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .browse-hero h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(2.4rem, 6vw, 5rem); text-transform: uppercase; line-height: .95; }
+    .browse-hero h1 em { font-style: normal; color: var(--accent); }
+    .browse-hero p { color: var(--muted); margin-top: 16px; max-width: 520px; line-height: 1.6; }
+
+    /* SEARCH BAR */
+    .search-panel { padding: 40px 5%; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .search-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+    .search-bar select, .search-bar input { flex: 1; min-width: 160px; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); font-family: 'Inter', sans-serif; font-size: .88rem; outline: none; appearance: none; }
+    .search-bar select:focus, .search-bar input:focus { border-color: var(--accent); }
+    .search-bar button { padding: 12px 28px; background: var(--accent); color: #000; border: none; border-radius: var(--radius); font-weight: 700; font-size: .9rem; cursor: pointer; }
+
+    .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+
+    /* RESULTS */
+    .results-section { padding: 48px 5%; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .results-count { font-size: .85rem; color: var(--muted); }
+    .results-count strong { color: var(--accent); }
+
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: transform .25s, box-shadow .25s; cursor: pointer; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+    .card-img { width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: var(--surface2); position: relative; overflow: hidden; }
+    .card-badge { position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 4px; font-size: .7rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+    .badge-new { background: var(--green); color: #000; }
+    .badge-used { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .badge-hot { background: var(--accent2); color: #fff; }
+    .card-body { padding: 16px; }
+    .card-type { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; line-height: 1.2; margin-bottom: 4px; }
+    .card-year { font-size: .78rem; color: var(--muted); margin-bottom: 12px; }
+    .card-specs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .spec { font-size: .73rem; color: var(--muted); background: var(--surface2); padding: 3px 8px; border-radius: 4px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; }
+    .card-price { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .card-price span { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .card-action { width: 34px; height: 34px; background: var(--accent); color: #000; border: none; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 24px 5%; }
+    .footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: .78rem; color: var(--muted); }
+
+    @media (max-width: 768px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">Velo<span>Mart</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="browse.html" class="active">Browse</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="sell.html" class="nav-cta">Sell Your Vehicle</a>
+  </div>
+</nav>
+
+<div class="browse-hero">
+  <div class="section-label">Explore Inventory</div>
+  <h1>Browse <em>All</em><br/>Vehicles</h1>
+  <p>Search, filter, and find your perfect car or bike from thousands of verified listings across India.</p>
+</div>
+
+<div class="search-panel">
+  <div class="search-bar">
+    <select id="typeFilter" onchange="applyFilters()">
+      <option value="all">All Types</option>
+      <option value="car">Cars</option>
+      <option value="bike">Bikes</option>
+      <option value="suv">SUVs</option>
+      <option value="scooter">Scooters</option>
+    </select>
+    <select id="fuelFilter" onchange="applyFilters()">
+      <option value="all">All Fuel Types</option>
+      <option value="Petrol">Petrol</option>
+      <option value="Diesel">Diesel</option>
+      <option value="Electric">Electric</option>
+    </select>
+    <select id="statusFilter" onchange="applyFilters()">
+      <option value="all">All Status</option>
+      <option value="available">Available</option>
+      <option value="reserved">Reserved</option>
+      <option value="sold">Sold</option>
+    </select>
+    <button onclick="applyFilters()">Search →</button>
+  </div>
+  <div class="filter-row">
+    <div class="tab active" onclick="quickFilter(this,'all')">All</div>
+    <div class="tab" onclick="quickFilter(this,'car')">🚗 Cars</div>
+    <div class="tab" onclick="quickFilter(this,'bike')">🏍️ Bikes</div>
+    <div class="tab" onclick="quickFilter(this,'suv')">🚙 SUVs</div>
+    <div class="tab" onclick="quickFilter(this,'scooter')">🛵 Scooters</div>
+  </div>
+</div>
+
+<section class="results-section">
+  <div class="results-header">
+    <h2 class="section-title" style="font-size:1.4rem">Results</h2>
+    <div class="results-count">Showing <strong id="resultCount">12</strong> vehicles</div>
+  </div>
+  <div class="grid grid-4" id="browseGrid"></div>
+</section>
+
+<footer>
+  <div class="footer-bottom">
+    <span>© 2025 VeloMart. All rights reserved.</span>
+    <span>Made with ❤️ for vehicle enthusiasts across India</span>
+  </div>
+</footer>
+
+<script>
+const vehicles = [
+  { id:1, name:'Maruti Swift VXI', type:'car', year:2021, km:'38,000', price:'₹5,40,000', location:'Delhi', fuel:'Petrol', trans:'Manual', owner:'2nd Owner', status:'available', emoji:'🚗', badge:'used' },
+  { id:2, name:'Honda Activa 6G', type:'scooter', year:2023, km:'12,500', price:'₹68,000', location:'Mumbai', fuel:'Petrol', trans:'Auto CVT', owner:'1st Owner', status:'available', emoji:'🛵', badge:'new' },
+  { id:3, name:'Royal Enfield Classic 350', type:'bike', year:2022, km:'21,000', price:'₹1,45,000', location:'Jaipur', fuel:'Petrol', trans:'Manual 5-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'used' },
+  { id:4, name:'Tata Nexon EV Max', type:'suv', year:2023, km:'9,800', price:'₹16,80,000', location:'Bangalore', fuel:'Electric', trans:'Automatic', owner:'1st Owner', status:'reserved', emoji:'🚙', badge:'hot' },
+  { id:5, name:'KTM Duke 390', type:'bike', year:2022, km:'17,200', price:'₹2,10,000', location:'Pune', fuel:'Petrol', trans:'Manual 6-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'used' },
+  { id:6, name:'Hyundai i20 Asta', type:'car', year:2020, km:'54,000', price:'₹7,20,000', location:'Chennai', fuel:'Petrol', trans:'Manual', owner:'2nd Owner', status:'sold', emoji:'🚗', badge:'used' },
+  { id:7, name:'Bajaj Pulsar NS200', type:'bike', year:2023, km:'8,000', price:'₹1,22,000', location:'Amritsar', fuel:'Petrol', trans:'Manual 6-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'new' },
+  { id:8, name:'Toyota Innova Crysta', type:'suv', year:2019, km:'72,000', price:'₹12,50,000', location:'Lucknow', fuel:'Diesel', trans:'Manual', owner:'2nd Owner', status:'available', emoji:'🚐', badge:'used' },
+  { id:9, name:'Honda CB350 H\'ness', type:'bike', year:2021, km:'29,000', price:'₹1,60,000', location:'Hyderabad', fuel:'Petrol', trans:'Manual 5-sp', owner:'1st Owner', status:'available', emoji:'🏍️', badge:'used' },
+  { id:10, name:'Maruti Baleno Alpha', type:'car', year:2022, km:'22,000', price:'₹8,90,000', location:'Kolkata', fuel:'Petrol', trans:'Automatic', owner:'1st Owner', status:'available', emoji:'🚗', badge:'new' },
+  { id:11, name:'TVS Jupiter 125', type:'scooter', year:2023, km:'6,500', price:'₹72,000', location:'Nagpur', fuel:'Petrol', trans:'Auto CVT', owner:'1st Owner', status:'available', emoji:'🛵', badge:'new' },
+  { id:12, name:'Mahindra Thar LX', type:'suv', year:2022, km:'18,000', price:'₹15,90,000', location:'Ahmedabad', fuel:'Diesel', trans:'Manual', owner:'1st Owner', status:'reserved', emoji:'🚙', badge:'hot' },
+];
+
+let currentTypeFilter = 'all';
+
+function buildCard(v) {
+  return `
+    <div class="card">
+      <div class="card-img">
+        <span class="card-badge badge-${v.badge}">${v.badge==='new'?'New':v.badge==='hot'?'🔥 Hot':'Used'}</span>
+        ${v.emoji}
+      </div>
+      <div class="card-body">
+        <div class="card-type">${v.type.toUpperCase()}</div>
+        <div class="card-name">${v.name}</div>
+        <div class="card-year">${v.year} · ${v.km} km · ${v.fuel}</div>
+        <div class="card-specs">
+          <span class="spec">${v.trans}</span>
+          <span class="spec">${v.owner}</span>
+          <span class="spec">📍 ${v.location}</span>
+        </div>
+        <div class="card-footer">
+          <div class="card-price">${v.price} <span>/ neg.</span></div>
+          <button class="card-action" onclick="window.location.href='sell.html'">→</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function applyFilters() {
+  const type = document.getElementById('typeFilter').value;
+  const fuel = document.getElementById('fuelFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  let filtered = vehicles;
+  if (type !== 'all') filtered = filtered.filter(v => v.type === type);
+  if (fuel !== 'all') filtered = filtered.filter(v => v.fuel === fuel);
+  if (status !== 'all') filtered = filtered.filter(v => v.status === status);
+  document.getElementById('browseGrid').innerHTML = filtered.map(buildCard).join('');
+  document.getElementById('resultCount').textContent = filtered.length;
+}
+
+function quickFilter(el, type) {
+  document.querySelectorAll('.filter-row .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('typeFilter').value = type;
+  applyFilters();
+}
+
+applyFilters();
+</script>
+</body>
+</html>
